@@ -1,0 +1,49 @@
+/* /home/al/projects/dashboard-admin/static/styles.css */
+body {
+    font-family: sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 20px;
+}
+
+h1, h2 {
+    color: #005a9c;
+}
+
+.container {
+    max-width: 1600px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+input[type="text"], textarea, select {
+    width: 90%;
+    padding: 8px;
+    margin-top: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+button, a[href*="reorder"] {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1em;
+}
+
+button:hover, a[href*="reorder"]:hover {
+    background-color: #0056b3;
+}
+
+small {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+}

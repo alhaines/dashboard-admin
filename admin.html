@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Media Player</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='static/styles.css') }}">
+</head>
+<body>
+    <h1 class="page-title">Media Player</h1>
+
+    <div>
+        <label for="table-select">Select Category:</label>
+        <select id="table-select">
+            <option value="">Select a category</option>
+            {% for table in tables %}
+                <option value="{{ table }}">{{ table }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div id="folder-container" style="display: none;">
+        <label for="folder-select">Select Folder:</label>
+        <select id="folder-select">
+            <option value="">Select a folder</option>
+        </select>
+    </div>
+
+    <div id="video-container" style="display: none;">
+        <label for="video-select">Select Video:</label>
+        <select id="video-select">
+            <option value="">Select a video</option>
+        </select>
+    </div>
+
+    <div id="player-container" style="display: none;">
+        <video id="video-player" controls width="640" height="360">
+            <source src="" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script> 1
+        $(document).ready(function() {
+            $('#table-select').change(function() {
+                var table_name = $(this).val();
+                if (table_name) {
+                    $.ajax({
+                        url: '/get_folders/' + table_name,
+                        type: 'GET',
+                        success: function(response) {
+                            var folderSelect = $('#folder-select');
+                            folderSelect.empty();
+                            folderSelect.append('<option value="">Select a folder</option>');
+                            $.each(response, function(index, folder) {
+                                folderSelect.append('<option value="' + folder + '">' + folder + '</option>');
+                            });
+                            $('#folder-container').show();
+                            $('#video-container').hide();
+                            $('#player-container').hide();
+                        },
+                        error: function(error) {
+                            console.error('Error fetching folders:', error);
+                        }
+                    });
+                } else {
+                    $('#folder-container').hide();
+                    $('#video-container').hide();
+                    $('#player-container').hide();
+                }
+            });
+
+            $('#folder-select').change(function() {
+                var table_name = $('#table-select').val();
+                var folder = $(this).val();
+                if (folder) {
+                    $.ajax({
+                        url: '/get_videos/' + table_name + '/' + folder,
+                        type: 'GET',
+                        success: function(response) {
+                            var videoSelect = $('#video-select');
+                            videoSelect.empty();
+                            videoSelect.append('<option value="">Select a video</option>');
+
+                            // Store video data in an array for later use
+                            var videoData = response;
+
+                            $.each(videoData, function(index, video) {
+                                videoSelect.append('<option value="' + video.id + '" data-index="' + index + '">' + video.title + '</option>');
+                            });
+                            $('#video-container').show();
+                            $('#player-container').hide();
+                        },
+                        error: function(error) {
+                            console.error('Error fetching videos:', error);
+                        }
+                    });
+                } else {
+                    $('#video-container').hide();
+                    $('#player-container').hide();
+                }
+            });
+
+            $('#video-select').change(function() {
+                var table_name = $('#table-select').val();
+                var video_id = $(this).val();
+                if (video_id) {
+                    var videoPlayer = $('#video-player');
+                    videoPlayer.find('source').attr('src', '/play_video/' + table_name + '/' + video_id);
+                    videoPlayer[0].load();
+                    $('#player-container').show();
+
+                    // Add event listener for video end
+                    videoPlayer[0].onended = function() {
+                        var currentVideoIndex = $('#video-select option:selected').data('index');
+                        var nextVideoIndex = (currentVideoIndex + 1) % $('#video-select option').length;
+
+                        // Skip the first option ("Select a video")
+                        if (nextVideoIndex === 0) {
+                            nextVideoIndex = 1;
+                        }
+
+                        $('#video-select').prop('selectedIndex', nextVideoIndex);
+                        $('#video-select').trigger('change');
+                    };
+
+                } else {
+                    $('#player-container').hide();
+                }
+            });
+        });
+    </script>
+           <p><a href="https://alhainesusa.tech/">Main Menu</a></p>
+
+</body>
+</html>
